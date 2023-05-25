@@ -1,0 +1,349 @@
+// CREACIÓN DE LA BASE DE DATOS, COLECCION "USUARIOS", Y SUS VALIDACIONES: 
+
+use("motorbike")
+
+db.createCollection("usuario", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["id_usuario", "id_rol", "nombre", "email", "contraseña", "estado"],
+      properties: {
+        id_usuario: {
+          bsonType: "string",
+          description: "ID del usuario"
+        },
+        id_rol: {
+          bsonType: "string",
+          description: "ID del rol"
+        },
+        nombre: {
+          bsonType: "string",
+          description: "Nombre del usuario"
+        },
+        email: {
+          bsonType: "string",
+          description: "Correo electrónico del usuario"
+        },
+        contraseña: {
+          bsonType: "string",
+          description: "Contraseña del usuario"
+        },
+        estado: {
+          bsonType: "string",
+          description: "Estado del usuario"
+        }
+      }
+    }
+  }
+})
+
+
+INSERT DE LA BASE DE DATOS A LA COLECCIÓN USUARIOS
+
+const { faker, fakerRO } = require('@faker-js/faker');
+const { MongoClient } = require('mongodb');
+
+// Configuración de la conexión a la base de datos
+const uri = "mongodb+srv://ADMIN:ADMIN@cluster0.jiq0gzk.mongodb.net/?retryWrites=true&w=majority";
+const dbName = 'motorbike';
+const collectionName = 'usuarios';
+
+// Genera usuarios con Faker y agrégalos a la base de datos
+async function insertUsers(numUsers) {
+  const client = new MongoClient(uri);
+
+  try {
+    await client.connect();
+    console.log('Conectado exitosamente a MongoDB');
+
+    const db = client.db(dbName);
+    const collection = db.collection(collectionName);
+
+    for (let i = 0; i < numUsers; i++) {
+      const usua = {
+        id_usuario: faker.number.int({max:2000}),
+        nombre: faker.person.firstName(),
+        email: faker.internet.email(), 
+        //idROl: faker.number.int({max:2000}),  //(["1","2","3",1,1])
+        id_rol: faker.helpers.arrayElements(["1","2","3"],1,1),
+        contrasena: faker.internet.password(),
+        estado: faker.helpers.arrayElements(["Habilitado", "Inhabilitado"], 1,1)
+        // Agrega más campos según tus necesidades
+      };
+
+      await collection.insertOne(usua);
+    }
+
+    console.log(`${numUsers} usuarios agregados exitosamente.`);
+  } catch (error) {
+    console.error('Error al conectar o insertar usuarios:', error);
+  } finally {
+    await client.close();
+  }
+}
+
+// Cantidad de usuarios a generar
+const numUsuariosAGenerar = 2000;
+
+// Llamada a la función para insertar usuarios
+insertUsers(numUsuariosAGenerar);
+
+
+
+
+
+// CREACION DE LA COLECCION "MECANICOS" CON SUS VALIDACIONES: 
+
+use("motorbike")
+db.createCollection("mecanicos",
+    {
+        validator: {
+            $and:
+                [
+                    { "id_mecanico": { $type: "int" } },
+                    { "nombre": { $type: "string" } },
+                    { "cedula": { $type: "number" } },
+                    { "telefono": { $type: "number" } },
+                    { "direccion": { $type: "string" } },
+                    { "estado": { $type: "array" } }
+
+
+                ]
+        }
+    })
+
+
+// INSERT DE DOCUMENTOS A LA COLECCIÓN DE "MECANICOS":
+ 
+const { faker } = require('@faker-js/faker');
+const { MongoClient } = require('mongodb');
+
+// Configuración de la conexión a la base de datos
+const uri = "mongodb+srv://ADMIN:ADMIN@cluster0.jiq0gzk.mongodb.net/?retryWrites=true&w=majority";
+const dbNombre = 'motorbike';
+const coleccion = 'mecanicos';
+
+// Genera usuarios con Faker y agrégalos a la base de datos
+async function insertUsers(numUsers) {
+    const client = new MongoClient(uri);
+
+    try {
+        await client.connect();
+        console.log('Conectado exitosamente a MongoDB');
+
+        const db = client.db(dbNombre);
+        const collection = db.collection(coleccion);
+
+        for (let i = 0; i < numUsers; i++) {
+            const mecanicos = {
+
+                id_mecanico: faker.number.int({ max: 2000 }),
+                nombre: faker.person.firstName(),
+                cedula: faker.number.int({
+                    min: 10000, max: 10000000000
+                }),
+                telefono: faker.number.int({
+                    min: 10000, max: 10000000000
+                }),
+                direccion: faker.location.streetAddress(), 
+                estado: faker.helpers.arrayElements(["Habilitado", "inhabilitado"],1,1)
+            };
+
+            await collection.insertMany(mecanicos);
+        }
+
+        console.log(`${numUsers} mecanicos agregados exitosamente.`);
+    } catch (error) {
+        console.error('Error al conectar o insertar mecanicos:', error);
+    } finally {
+        await client.close();
+    }
+}
+
+// Cantidad de usuarios a generar
+const numUsuariosAGenerar = 2000;
+
+// Llamada a la función para insertar usuarios
+insertUsers(numUsuariosAGenerar);
+
+
+
+
+
+
+// CREACION DE LA COLECCION "SERVICIOS" CON SUS VALIDACIONES: 
+
+
+use("motorbike")
+
+db.createCollection("servicios", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["id_servicio"],
+            properties: {
+                id_servicio: {
+                    bsonType: "int",
+                    description: "Id del servicio"
+                },
+                nombre: {
+                    bsonType: "string",
+                    description: "Nombre del servicio"
+                },
+                descripcion: {
+                    bsonType: "string",
+                    description: "Descripcion del servicio"
+                }, 
+                estado: {
+                    bsonType: "array", 
+                    description: "Estado del servicio"
+                }
+            }
+        }
+    }
+})
+
+// INSERT DE DOCUMENTOS A LA COLECCIÓN DE "SERVICIOS":
+
+const { faker} = require('@faker-js/faker');
+const { MongoClient } = require('mongodb');
+
+// Configuración de la conexión a la base de datos
+const uri = "mongodb+srv://ADMIN:ADMIN@cluster0.jiq0gzk.mongodb.net/?retryWrites=true&w=majority";
+const dbName = 'motorbike';
+const collectionName = 'servicios';
+
+// Genera usuarios con Faker y agrégalos a la base de datos
+async function insertUsers(numUsers) {
+  const client = new MongoClient(uri);
+
+  try {
+    await client.connect();
+    console.log('Conectado exitosamente a MongoDB');
+
+    const db = client.db(dbName);
+    const collection = db.collection(collectionName);
+
+    for (let i = 0; i < numUsers; i++) {
+      const mecanicos = {
+        id_servicio: faker.number.int({ max: 2000 }),
+
+        nombre: faker.company.catchPhraseNoun(), 
+        descripcion: faker.company.catchPhraseDescriptor(), 
+        estado: faker.helpers.arrayElements(["Habilitado", "Inhabilitado"],1,1)
+      };
+
+      await collection.insertOne(mecanicos);
+    }
+
+    console.log(`${numUsers} servicios agregados exitosamente.`);
+  } catch (error) {
+    console.error('Error al conectar o insertar mecanicos:', error);
+  } finally {
+    await client.close();
+  }
+}
+
+// Cantidad de usuarios a generar
+const numUsuariosAGenerar = 2000;
+
+// Llamada a la función para insertar usuarios
+insertUsers(numUsuariosAGenerar);
+
+
+
+
+
+// CREACIÓN DE LA COLECCIÓN "VENTAS" Y SUS VALIDACIONES: 
+
+// CREACIÓN DE LA BASE DE DATOS, COLECCION USUARIOS, Y VALIDACIONES PARA SUS DOCUMENTOS
+
+use("motorbike")
+
+db.createCollection("ventas", {
+    validator: {
+        $jsonSchema: {
+            bsonType: "object",
+            required: ["id_venta"],
+            properties: {
+                id_venta: {
+                    bsonType: "int",
+                    description: "Id de la venta"
+                },
+                id_cliente: {
+                    bsonType: "int",
+                    description: "Id del cliente"
+                },
+                id_mecanico: {
+                    bsonType: "int",
+                    description: "Id del mecanico"
+                },
+                precio_final: {
+                    bsonType: "int",
+                    description: "Precio final de la venta"
+                },
+                fecha_venta: {
+                    bsonType: "date",
+                    description: "Fecha de la venta"
+
+                }, 
+                estado: {
+                    bsonType: "array", 
+                    description: "Estado de la venta"
+                }
+            }
+        }
+    }
+})
+
+// INSERT DE DOCUMENTOS A LA COLECCIÓN "VENTAS": 
+
+const { faker } = require('@faker-js/faker');
+const { MongoClient } = require('mongodb');
+
+// Configuración de la conexión a la base de datos
+const uri = "mongodb+srv://ADMIN:ADMIN@cluster0.jiq0gzk.mongodb.net/?retryWrites=true&w=majority";
+const dbName = 'motorbike';
+const collectionName = 'ventas';
+
+// Genera usuarios con Faker y agrégalos a la base de datos
+async function insertUsers(numUsers) {
+  const client = new MongoClient(uri);
+
+  try {
+    await client.connect();
+    console.log('Conectado exitosamente a MongoDB');
+
+    const db = client.db(dbName);
+    const collection = db.collection(collectionName);
+
+    for (let i = 0; i < numUsers; i++) {
+      const venta = {
+        id_venta: faker.number.int({ max: 2000 }),
+        id_cliente: faker.number.int({ max: 2000 }),
+        id_mecanico: faker.number.int({ max: 2000 }),
+        precio_final: faker.number.int({ max: 1500000 }), 
+        fecha_venta: faker.date.recent(), 
+        estado: faker.helpers.arrayElements(["Habilitado", "Inhabilitado"],1,1)
+      };
+
+      await collection.insertOne(venta);
+    }
+
+    console.log(`${numUsers} ventas agregadas exitosamente.`);
+  } catch (error) {
+    console.error('Error al conectar o insertar mecanicos:', error);
+  } finally {
+    await client.close();
+  }
+}
+
+// Cantidad de usuarios a generar
+const numUsuariosAGenerar = 2000;
+
+// Llamada a la función para insertar usuarios
+insertUsers(numUsuariosAGenerar);
+
+
+
+
